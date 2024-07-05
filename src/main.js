@@ -1,6 +1,7 @@
 require([
     "esri/Map",
     "esri/views/MapView",
+    "esri/widgets/Home",
     "esri/layers/FeatureLayer",
     "esri/geometry/geometryEngine",
     "esri/rest/locator",
@@ -12,7 +13,7 @@ require([
   //  "esri/widgets/Popup",
  
 
-], function(Map, MapView, FeatureLayer, geometryEngine, locator, Point, SpatialReference, webMercatorUtils, Graphic) {
+], function(Map, MapView, Home, FeatureLayer, geometryEngine, locator, Point, SpatialReference, webMercatorUtils, Graphic) {
 
     const map = new Map({
         basemap: "streets-navigation-vector"
@@ -25,32 +26,42 @@ require([
         zoom: 4
     });
 
-    const popupTemplate = {
-        title: "You clicked here",
-        content: function(ufoLayer) {
-          const state = ufoLayer.attributes.STATE;
-          const city = ufoLayer.attributes.CITY || ""; // Handle missing CITY attribute
-          const description = ufoLayer.attributes.DESCRIPTION;
-          const dateTime = ufoLayer.attributes.DATE_TIME;
-      
-           return `
-            <div>
-              <h3>State: ${state}</h3>
-              ${city ? `<h3>City: ${city}</h3>` : ''}
-              <h3>Description: ${description}</h3>
-              <h3>Date: ${dateTime}</h3>
-            </div>
-          `; 
-          
-        }
-      };
+    const homeWidget = new Home({
+      view:view
+    })
+
+    view.ui.add(homeWidget,"top-left");
+
+     const popupTemplate = {
+      title: "UFO Sighting",
+      outFields: ["SUMMARY","STATE", "CITY", "DESCRIPTION", "DATE_TIME"],
+      content: function (ufoLayer) {
+          const summary = ufoLayer.graphic.attributes.SUMMARY;
+          const state = ufoLayer.graphic.attributes.STATE;
+          const city = ufoLayer.graphic.attributes.CITY || ""; // Handle missing CITY attribute
+          const description = ufoLayer.graphic.attributes.DESCRIPTION;
+          const dateTime = ufoLayer.graphic.attributes.DATE_TIME;
+              
+          return `
+              <div>
+                <h3>Summary: ${summary}</h3>
+                <h3>State: ${state}</h3>
+                ${city ? `<h3>City: ${city}</h3>` : ''}
+                <h3>Description: ${description}</h3>
+                <h3>Date: ${new Date(dateTime).toDateString()}</h3>
+              </div>
+          `;
+      }
+  }; 
+
+  
       
 
     const ufoLayer = new FeatureLayer({
         url: "https://services3.arcgis.com/Fq07Av2pa1e9WKEK/arcgis/rest/services/Encuentros_de_ovni/FeatureServer/0",
        // url: "https://services1.arcgis.com/UWYHeuuJISiGmgXx/arcgis/rest/services/PrivateSchool/FeatureServer/0",
       //  url: "https://egisdata.baltimorecity.gov/egis/rest/services/CityView/Museum/MapServer/0",
-        outFields:["STATE", "CITY", "DESCRIPTION", "DATE_TIME"],
+        outFields:["SUMMARY","STATE", "CITY", "DESCRIPTION", "DATE_TIME"],
        // outFields:["OBJECTID", "NAME", "ADDRESS"],
         popupTemplate: popupTemplate // Attach the popup template to the layer
     });
@@ -81,18 +92,23 @@ require([
             // Check if the graphic object is not null
             if (graphic) {
               // Access attributes (city, description, date_time) from the graphic
-              const state = graphic.attributes.OBJECTID;
-              const city = graphic.attributes.NAME || ""; // Handle missing CITY attribute
+              const summary = graphic.attributes.SUMMARY;
+              const state = graphic.attributes.STATE;
+              const city = graphic.attributes.CITY || ""; // Handle missing CITY attribute
               const description = graphic.attributes.DESCRIPTION;
               const dateTime = graphic.attributes.DATE_TIME;
       
+            //  const dateObj = new Date(dateTime);
+             // const formattedDate = `${String(dateObj.getMonth() + 1).padStart(2, '0')}${String(dateObj.getDate()).padStart(2, '0')}${dateObj.getFullYear()}`;
+            //  {new Date(nearestFeature.attributes.DATE_TIME).toDateString()
               // Construct popup content
                let popupContent = `
                 <div>
+                <h3>Summary: ${summary}</h3>
                 <h3>State: ${state}</h3>
                   <h3>City: ${city}</h3>
                   <h3>Description: ${description}</h3>
-                  <h3>Date: ${dateTime}</h3>
+                  <h3>Date: ${new Date(dateTime).toDateString()}</h3>
                 </div>
               `; 
       
