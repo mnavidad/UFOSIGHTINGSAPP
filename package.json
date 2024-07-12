@@ -15,7 +15,8 @@
     "lite-server": "^2.6.1"
   },
   "dependencies": {
-    "arcgis-js-api": "^4.29.10"
-    
+    "@arcgis/core": "^4.30.8",
+    "@esri/arcgis-rest-geocoding": "^4.0.3",
+    "@esri/arcgis-rest-places": "^1.1.0"
   }
 }
