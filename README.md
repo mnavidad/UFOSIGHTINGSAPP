@@ -3,7 +3,7 @@ UFO Sighting App
 This is a web application to explore and potentially track UFO sightings.
 Features: https://services3.arcgis.com/Fq07Av2pa1e9WKEK/arcgis/rest/services/Encuentros_de_ovni/FeatureServer/0
 
-Map Interface using ArcGIS API JS: https://js.arcgis.com/4.29
+Map Interface using ArcGIS API JS: https://js.arcgis.com/4.30
 Getting Started
 
 Prerequisites:
@@ -19,11 +19,11 @@ npm install
 
 Running the Application:
 
-Start the development server:
+Start the development server with vite:
 Bash
-npm run start
+npx vite
 
-This will start a local server and open the application in your default web browser, typically at http://localhost:3000/.
+This will start a local server and open the application in your default web browser, typically at http://localhost:5173/.
 alternative use VS to set up code use go live to run application in chrome or edge
 
 Development:
