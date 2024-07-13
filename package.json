@@ -1,18 +1,21 @@
 {
   "name": "ufosightingsapp",
+  "type": "module",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
   "scripts": {
-    "start": "npm run lite",
+    "start": "vite",
+    "build": "vite build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lite": "lite-server"
+    
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "lite-server": "^2.6.1"
+    "lite-server": "^2.6.1",
+    "vite": "^5.3.3"
   },
   "dependencies": {
     "@arcgis/core": "^4.30.8",
