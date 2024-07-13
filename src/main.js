@@ -2,18 +2,17 @@ import Map from "@arcgis/core/Map";
 import MapView from "@arcgis/core/views/MapView";
 import Home from "@arcgis/core/widgets/Home";
 import FeatureLayer from "@arcgis/core/layers/FeatureLayer";
-import geometryEngine from "@arcgis/core/geometry/geometryEngine";
+import * as geometryEngine from "@arcgis/core/geometry/geometryEngine";
 import Point from "@arcgis/core/geometry/Point";
 import SpatialReference from "@arcgis/core/geometry/SpatialReference";
-import webMercatorUtils from "@arcgis/core/geometry/support/webMercatorUtils";
+import * as webMercatorUtils from "@arcgis/core/geometry/support/webMercatorUtils";
 import Graphic from "@arcgis/core/Graphic";
-import ApiKeyManager from "@arcgis/core/identity/ApiKeyManager";
+//import ApiKeyManager from "@arcgis/core/identity/ApiKeyManager";
 import * as locator from "@arcgis/core/rest/locator";
 import * as places from "@esri/arcgis-rest-places";
-import "./styles.css";
+import "/src/styles.css";
+import { config } from "./config";
 
-esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurImB1sruDfMzCMwl2OWiOOIetyJi87lNGHybZBeDNkGsTGBVgj5_g3Si3qefOmMuLqhKSK_13oNZ3-swGDYNhTEEz2o2NXHSf8bSFzinslolWCwIVaPSAu37v4xTQNifJ9yGRIM-1pQoVnZxXtXLZdww9kC-F_eVd8fRHCHT8ooffWc2gySX01njOJpIoUDHZ-3T9B30W-I3NiYBzX4f5trpYKLtXrcGrvP54kgQ24W-AT1_jO9SFswd";
-ApiKeyManager.register("AAPTxy8BH1VEsoebNVZXo8HurImB1sruDfMzCMwl2OWiOOIetyJi87lNGHybZBeDNkGsTGBVgj5_g3Si3qefOmMuLqhKSK_13oNZ3-swGDYNhTEEz2o2NXHSf8bSFzinslolWCwIVaPSAu37v4xTQNifJ9yGRIM-1pQoVnZxXtXLZdww9kC-F_eVd8fRHCHT8ooffWc2gySX01njOJpIoUDHZ-3T9B30W-I3NiYBzX4f5trpYKLtXrcGrvP54kgQ24W-AT1_jO9SFswd");
 
 const map = new Map({
   basemap: "streets-navigation-vector"
@@ -135,9 +134,9 @@ document.getElementById("searchButton").addEventListener("click", function() {
         view.goTo({ center: [cityPoint.x, cityPoint.y], zoom: 10 });
 
         // Then, use the Places API to find the nearest UFO sighting
-        places.nearby({
+        places.findPlacesNearPoint({
           params: {
-            apiKey: "AAPTxy8BH1VEsoebNVZXo8HurImB1sruDfMzCMwl2OWiOOIetyJi87lNGHybZBeDNkGsTGBVgj5_g3Si3qefOmMuLqhKSK_13oNZ3-swGDYNhTEEz2o2NXHSf8bSFzinslolWCwIVaPSAu37v4xTQNifJ9yGRIM-1pQoVnZxXtXLZdww9kC-F_eVd8fRHCHT8ooffWc2gySX01njOJpIoUDHZ-3T9B30W-I3NiYBzX4f5trpYKLtXrcGrvP54kgQ24W-AT1_jO9SFswd",
+            apiKey: config.apiKey,
             categories: "UFO",
             nearPoint: `${cityPoint.x},${cityPoint.y}`,
             distance: 100,
