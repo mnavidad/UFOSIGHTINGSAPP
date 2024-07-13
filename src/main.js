@@ -10,7 +10,6 @@ import Graphic from "@arcgis/core/Graphic";
 //import ApiKeyManager from "@arcgis/core/identity/ApiKeyManager";
 import * as locator from "@arcgis/core/rest/locator";
 import * as places from "@esri/arcgis-rest-places";
-import "/src/styles.css";
 import { config } from "./config";
 
 
