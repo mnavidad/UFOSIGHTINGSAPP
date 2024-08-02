@@ -7,9 +7,9 @@ import Point from "@arcgis/core/geometry/Point";
 import SpatialReference from "@arcgis/core/geometry/SpatialReference";
 import * as webMercatorUtils from "@arcgis/core/geometry/support/webMercatorUtils";
 import Graphic from "@arcgis/core/Graphic";
-//import ApiKeyManager from "@arcgis/core/identity/ApiKeyManager";
+import { ApiKeyManager } from "@esri/arcgis-rest-request";
 import * as locator from "@arcgis/core/rest/locator";
-import * as places from "@esri/arcgis-rest-places";
+import { findPlacesNearPoint } from "@esri/arcgis-rest-places";
 import { config } from "./config";
 
 
@@ -112,7 +112,7 @@ view.on("click", function(event) {
 });
 
 const locatorUrl = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer";
-const placesUrl = "https://places-api.arcgis.com/arcgis/rest/services/places-service/v1/places/near-point";
+//const placesUrl = "https://places-api.arcgis.com/arcgis/rest/services/places-service/v1/places/near-point";
 
 document.getElementById("searchButton").addEventListener("click", function() {
   const cityName = document.getElementById("cityInput").value;
@@ -131,16 +131,44 @@ document.getElementById("searchButton").addEventListener("click", function() {
         });
 
         view.goTo({ center: [cityPoint.x, cityPoint.y], zoom: 10 });
+//-------------------------------------------------------------------------------------- only for testing troubleshoot
+        const getPlaces = async () => {
+  let lastResponse = await findPlacesNearPoint({
+    x: cityPoint.x,
+    y: cityPoint.y,
+    radius: 250,
+    authentication: ApiKeyManager.fromKey(config.apiKey),
+  })
+
+  console.log(JSON.stringify(lastResponse.results, null, 2))
+
+  while (lastResponse.nextPage) {
+    try {
+      lastResponse = await lastResponse.nextPage()
+      console.log(JSON.stringify(lastResponse.results, null, 2))
+    } catch {
+      break
+    }
+  }
+}
+getPlaces()
+//----------------------------------------------------------------------------------------------- troubleshoot 
+     
 
         // Then, use the Places API to find the nearest UFO sighting
-        places.findPlacesNearPoint({
-          params: {
-            apiKey: config.apiKey,
+        findPlacesNearPoint({
+          x: cityPoint.x,
+          y: cityPoint.y,
+          radius: 100,
+          authentication: ApiKeyManager.fromKey(config.apiKey),
+          f: "pjson"
+          /* params: {
+            apiKey: "",
             categories: "UFO",
             nearPoint: `${cityPoint.x},${cityPoint.y}`,
             distance: 100,
             f: "json"
-          }
+          } */
         }).then(data => {
           if (data.features.length) {
             const nearestFeature = data.features[0];
