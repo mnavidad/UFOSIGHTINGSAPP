@@ -15,6 +15,7 @@ require([
 
   esriConfig.apiKey = //config.apiKey;
   "AAPTxy8BH1VEsoebNVZXo8HurImB1sruDfMzCMwl2OWiOOIetyJi87lNGHybZBeDNkGsTGBVgj5_g3Si3qefOmMuLqhKSK_13oNZ3-swGDYNhTEEz2o2NXHSf8bSFzinslolWCwIVaPSAu37v4xTQNifJ9yGRIM-1pQoVnZxXtXLZdww9kC-F_eVd8fRHCHT8ooffWc2gySX01njOJpIoUDHZ-3T9B30W-I3NiYBzX4f5trpYKLtXrcGrvP54kgQ24W-AT1_jO9SFswd";
+  "AAPTxy8BH1VEsoebNVZXo8HurImB1sruDfMzCMwl2OWiOOJTRu0LC9bYnYqhX114m8swOPxV-jJNnSOnI056j0MpMgHic8BOZ2d6UVh7nN2kdC4wXEGqp5U0TJKT_z3szvw-g387ED7EfuTFfh-Kapix5EftBOHZ_afBz-m1Cvg8D9SAdibK7VPvVohc6VaKqV7cy0hN1LdJjmgUoEckmxoTUM0bDzsmGx1dU2RCZy2O2wmzUOD7CEztL_kInq9Vf3svAT1_m6KPuYky";
   const map = new Map({
       basemap: "streets-navigation-vector"
   });

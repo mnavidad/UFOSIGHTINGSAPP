@@ -7,11 +7,7 @@ import Point from "@arcgis/core/geometry/Point";
 import SpatialReference from "@arcgis/core/geometry/SpatialReference";
 import * as webMercatorUtils from "@arcgis/core/geometry/support/webMercatorUtils";
 import Graphic from "@arcgis/core/Graphic";
-import { ApiKeyManager } from "@esri/arcgis-rest-request";
 import * as locator from "@arcgis/core/rest/locator";
-import { findPlacesNearPoint } from "@esri/arcgis-rest-places";
-import { config } from "./config";
-
 
 const map = new Map({
   basemap: "streets-navigation-vector"
@@ -53,7 +49,8 @@ const popupTemplate = {
 };
 
 const ufoLayer = new FeatureLayer({
-  url: "https://services6.arcgis.com/XC8RCfadrDoUDrun/arcgis/rest/services/EncuentrosDeOvni/FeatureServer/0",
+ // url: "https://services6.arcgis.com/XC8RCfadrDoUDrun/arcgis/rest/services/EncuentrosDeOvni/FeatureServer/0",
+  url:"https://services6.arcgis.com/XC8RCfadrDoUDrun/arcgis/rest/services/EncuentrosDeOvniVer3/FeatureServer",
   outFields: ["*"],
   popupTemplate: popupTemplate // Attach the popup template to the layer
 });
@@ -112,7 +109,6 @@ view.on("click", function(event) {
 });
 
 const locatorUrl = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer";
-//const placesUrl = "https://places-api.arcgis.com/arcgis/rest/services/places-service/v1/places/near-point";
 
 document.getElementById("searchButton").addEventListener("click", function() {
   const cityName = document.getElementById("cityInput").value;
@@ -131,13 +127,131 @@ document.getElementById("searchButton").addEventListener("click", function() {
         });
 
         view.goTo({ center: [cityPoint.x, cityPoint.y], zoom: 10 });
+
+        const query = ufoLayer.createQuery();
+        query.returnGeometry = true;
+        query.outFields = ["*"];
+
+        ufoLayer.queryFeatures(query).then(function(response) {
+          const features = response.features;
+
+          if (features.length) {
+            const nearestFeature = findNearestFeature(features, cityPoint);
+
+            if (nearestFeature) {
+            //  console.log(`Nearest Feature: City: ${nearestFeature.attributes.CITY}, Distance: ${nearestFeature.distance} km`);
+
+              const nearestPoint = nearestFeature.geometry.type === "point" ? nearestFeature.geometry : nearestFeature.geometry.extent.center;
+              const distance = geometryEngine.distance(cityPoint, nearestPoint, "kilometers");
+
+              view.popup.open({
+                title: `Nearest UFO Sighting`,
+                content: `Location: ${nearestFeature.attributes.CITY}<br>
+                          State: ${nearestFeature.attributes.STATE}<br>
+                          Summary: ${nearestFeature.attributes.DESCRIPTIO}<br>
+                          Date: ${new Date(nearestFeature.attributes.DATE_TIME).toDateString()}<br>
+                          Distance: ${distance.toFixed(2)} km (${(distance * 0.621371).toFixed(2)} miles)`,
+                location: nearestFeature.geometry
+              });
+            } else {
+              view.popup.open({
+                title: "No Sightings Found",
+                content: "No UFO sightings found within the specified distance.",
+                location: cityPoint
+              });
+            }
+          } else {
+            view.popup.open({
+              title: "No Sightings Found",
+              content: "No UFO sightings found within the specified distance.",
+              location: cityPoint
+            });
+          }
+        });
+      } else {
+        alert("City not found.");
+      }
+    });
+  } else {
+    alert("Please enter a city name.");
+  }
+});
+
+
+function findNearestFeature(features, cityPoint) {
+  let nearestFeature = null;
+  let minDistance = Infinity;
+
+  features.forEach(function(feature, index) {
+    const featureGeometry = feature.geometry;
+
+    if (featureGeometry) {
+      let distance = 0;
+      let featurePoint;
+
+      if (featureGeometry.type === "point") {
+        featurePoint = featureGeometry;
+      } else {
+        featurePoint = featureGeometry.extent.center;
+      }
+
+      // Ensure both points are in the same spatial reference
+      const cityPointProjected = webMercatorUtils.project(cityPoint, featurePoint.spatialReference);
+
+      distance = geometryEngine.distance(cityPointProjected, featurePoint, "kilometers");
+
+      // Log the distance for each feature
+      console.log(`Feature ${index + 1}: City: ${feature.attributes.CITY}, Distance: ${distance} km`);
+
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestFeature = feature;
+      }
+    }
+  });
+
+  return nearestFeature;
+} 
+
+
+
 //-------------------------------------------------------------------------------------- only for testing troubleshoot
-        const getPlaces = async () => {
+
+// Example: Making a request to an Esri portal endpoint using fetch
+/* const portalUrl = 'https://mnavidadnoel.maps.arcgis.com/arcgis/rest/info?f=json&token=' + config.apiKey;
+
+fetch(portalUrl)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(data => {
+    // Handle the response data
+    console.log('Response from portal:', data);
+  })
+  .catch(error => {
+    console.error('Error fetching data from portal:', error);
+  }); */
+
+// Example usage: Validate the token saved in localStorage
+/*const savedToken = localStorage.getItem('userToken');
+if (savedToken) {
+  validateToken(savedToken);
+} else {
+  console.error('No token found in localStorage');
+}*/
+
+
+
+//----------------------------------------------------------------------------
+ /*        const getPlaces = async () => {
   let lastResponse = await findPlacesNearPoint({
     x: cityPoint.x,
     y: cityPoint.y,
     radius: 250,
-    authentication: ApiKeyManager.fromKey(config.apiKey),
+  //  authentication: ApiKeyManager.fromKey(config.apiKey),
   })
 
   console.log(JSON.stringify(lastResponse.results, null, 2))
@@ -150,18 +264,19 @@ document.getElementById("searchButton").addEventListener("click", function() {
       break
     }
   }
-}
-getPlaces()
+} */
+//getPlaces()
 //----------------------------------------------------------------------------------------------- troubleshoot 
      
 
         // Then, use the Places API to find the nearest UFO sighting
-        findPlacesNearPoint({
-          x: cityPoint.x,
-          y: cityPoint.y,
-          radius: 100,
-          authentication: ApiKeyManager.fromKey(config.apiKey),
-          f: "pjson"
+     //   findPlacesNearPoint({
+     //     x: cityPoint.x,
+     //     y: cityPoint.y,
+      //    radius: 100,
+      //    authentication: ApiKeyManager.fromKey(config.apiKey),
+      //    category:"UFO Sightings",
+      //    f: "pjson"
           /* params: {
             apiKey: "",
             categories: "UFO",
@@ -169,7 +284,7 @@ getPlaces()
             distance: 100,
             f: "json"
           } */
-        }).then(data => {
+     /*   }).then(data => {
           if (data.features.length) {
             const nearestFeature = data.features[0];
             const nearestPoint = new Point({
@@ -203,5 +318,5 @@ getPlaces()
     });
   } else {
     alert("Please enter a city name.");
-  }
-});
+  } */
+//});
